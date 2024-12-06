@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "skipLibCheck": true, // (opcional, para evitar erros em algumas bibliotecas)
+    "strict": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
