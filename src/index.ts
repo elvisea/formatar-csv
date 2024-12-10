@@ -6,7 +6,9 @@ import { extractDataFromFile } from './utils/parseCsv';
 dotenv.config();
 
 if (!process.env.INPUT_FILE_PATH || !process.env.TABLE_NAME) {
-  console.error("Erro: Faltam variáveis de ambiente necessárias (INPUT_FILE_PATH ou TABLE_NAME).");
+  console.error(
+    'Erro: Faltam variáveis de ambiente necessárias (INPUT_FILE_PATH ou TABLE_NAME).',
+  );
   process.exit(1);
 }
 

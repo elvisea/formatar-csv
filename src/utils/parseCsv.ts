@@ -17,7 +17,10 @@ const fixJsonField = (jsonString: string): string | null => {
 export const extractDataFromFile = async (
   path: string,
   tableName: string,
-  callbacks: { onSuccess: (count: number) => void; onFailure: (count: number) => void }
+  callbacks: {
+    onSuccess: (count: number) => void;
+    onFailure: (count: number) => void;
+  },
 ): Promise<void> => {
   let lineCount = 0;
   let batchData: any[] = [];
@@ -36,7 +39,11 @@ export const extractDataFromFile = async (
 
         if (data['metadata']) {
           const metadata = data['metadata'];
-          if (typeof metadata === 'string' && metadata.trim().startsWith('{') && metadata.trim().endsWith('}')) {
+          if (
+            typeof metadata === 'string' &&
+            metadata.trim().startsWith('{') &&
+            metadata.trim().endsWith('}')
+          ) {
             const correctedJson = fixJsonField(metadata);
             if (correctedJson !== null) {
               data['metadata'] = correctedJson;
@@ -51,26 +58,36 @@ export const extractDataFromFile = async (
 
         // Se o batch atingir o limite, inicia o processo de inserção paralela
         if (batchData.length >= 200) {
-          const currentBatch = [...batchData];  // Cria uma cópia do lote para inserção
+          const currentBatch = [...batchData]; // Cria uma cópia do lote para inserção
           batchData = []; // Reseta o lote atual
-          insertPromises.push(insertBatchToDatabase(currentBatch, tableName).then(() => {
-            successCount += currentBatch.length;
-          }).catch(() => {
-            failureCount += currentBatch.length;
-          }));
+          insertPromises.push(
+            insertBatchToDatabase(currentBatch, tableName)
+              .then(() => {
+                successCount += currentBatch.length;
+              })
+              .catch(() => {
+                failureCount += currentBatch.length;
+              }),
+          );
         }
       })
       .on('end', async () => {
-        console.log(`Leitura do arquivo CSV concluída. Total de linhas processadas: ${lineCount}`);
+        console.log(
+          `Leitura do arquivo CSV concluída. Total de linhas processadas: ${lineCount}`,
+        );
 
         if (batchData.length > 0) {
           // Insere o último lote se houver dados restantes
           const currentBatch = [...batchData];
-          insertPromises.push(insertBatchToDatabase(currentBatch, tableName).then(() => {
-            successCount += currentBatch.length;
-          }).catch(() => {
-            failureCount += currentBatch.length;
-          }));
+          insertPromises.push(
+            insertBatchToDatabase(currentBatch, tableName)
+              .then(() => {
+                successCount += currentBatch.length;
+              })
+              .catch(() => {
+                failureCount += currentBatch.length;
+              }),
+          );
         }
 
         // Aguarda a conclusão de todas as promessas de inserção
