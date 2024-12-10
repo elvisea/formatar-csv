@@ -3,6 +3,19 @@ import csvParser from 'csv-parser';
 import { insertBatchToDatabase } from '../db/insert';
 import { normalizeKeys } from './normalize';
 
+// Função para limpar e formatar o campo description (ou outros campos como mid_code)
+const formatDescription = (description: string): string => {
+  // Remove espaços, tabulações, quebras de linha, e formatação extra
+  let formattedDescription = description.replace(/[\s\t\r\n]+/g, ' ').trim();
+
+  // Se for um XML, pode ser interessante manter a formatação de tags, mas garantir que não haja espaços extras
+  // Se preferir manter como XML estruturado, você pode usar algo como uma função para "embelezar" o XML
+
+  // Aqui, apenas estamos limpando espaços extras, mas você pode adicionar uma formatação específica para XML ou outros formatos
+  return formattedDescription;
+};
+
+// Função para corrigir campos JSON
 const fixJsonField = (jsonString: string): string | null => {
   try {
     const cleanedJsonString = jsonString.replace(/[\s\t\r\n]+/g, ' ').trim();
@@ -37,6 +50,17 @@ export const extractDataFromFile = async (
         lineCount++;
         console.log(`Linha lida. Total de linhas processadas: ${lineCount}`);
 
+        // Processar o campo 'description'
+        if (data['description']) {
+          data['description'] = formatDescription(data['description']);
+        }
+
+        // Processar o campo 'mid_code' se necessário
+        if (data['mid_code']) {
+          data['mid_code'] = formatDescription(data['mid_code']);
+        }
+
+        // Se o campo 'metadata' existir e for um JSON, corrige o formato
         if (data['metadata']) {
           const metadata = data['metadata'];
           if (
